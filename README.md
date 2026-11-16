@@ -33,6 +33,40 @@ jobs:
 
 Used by [tuya-proto](https://github.com/rkosegi/tuya-proto/actions/workflows/ci.yaml)
 
+- [Go CodeQL](.github/workflows/go-codeql.yaml)
+
+_This workflow perform codeQL scan of Go code + gh actions in caller project._
+
+in caller repo
+
+```yaml
+name: CodeQL Advanced
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: 36 2 * * 4
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    uses: rkosegi/github-workflows/.github/workflows/go-codeql.yaml@4e72bf6923cf6736289dba967759304e0a6d67f3 # v0.0.10
+
+```
+
+Used by [go-korek](https://github.com/rkosegi/go-korek/actions/workflows/go-codeql.yaml)
+
+
 - [Dependency review](.github/workflows/dependency-review.yaml)
 
 _This workflow scans project dependencies on PR event_
