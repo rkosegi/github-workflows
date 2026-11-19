@@ -18,6 +18,17 @@ on:
     secrets:
       CODECOV_TOKEN:
         required: false
+    inputs:
+      skipTests:
+        description: Flag controlling execution of the tests
+        type: boolean
+        default: false
+        required: false
+      goreleaser:
+        description: When true, goreleaser will be used to build project, otherwise plain go binary
+        type: boolean
+        default: false
+        required: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,12 +51,23 @@ jobs:
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
       - name: Build
+        if: ${{ inputs.goreleaser == false }}
         run: go build -v ./...
 
+      - name: Build using GoReleaser
+        if: ${{ inputs.goreleaser == true }}
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
+        with:
+          distribution: goreleaser
+          version: latest
+          args: build --snapshot --clean --single-target
+
       - name: Test
+        if: ${{ inputs.skipTests == false }}
         run: go test -race -coverprofile=coverage.out -covermode=atomic -json ./... > testresults.json
 
       - name: Upload Go test results
+        if: ${{ inputs.skipTests == false }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Test results
